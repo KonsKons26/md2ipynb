@@ -95,7 +95,7 @@ def save_ipynb(path, json_dict):
     """
     This function takes the json dictionary and saves it as an ipynb.
     """
-    json_str = json.dumps(json_dict, indent=4)
+    json_str = json.dumps(json_dict, indent=1)
     with open(path, "w") as writer:
         writer.write(json_str)
 
