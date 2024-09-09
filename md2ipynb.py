@@ -21,18 +21,18 @@ def find_blocks(lines, title_depth=5):
     """
     block_starts = []
     code_blocks = []
-    code_block_start_end = False
+    code_block_opened = False
     for i, line in enumerate(lines):
         # Check if a line starts with a backtick or quotation marks then creates a
         # list of lists where each inner list is a pair of indexes that mark the
         # start and end of each code block
         if line.startswith("`") or line.startswith("'") or line.startswith('"'):
-            if code_block_start_end == False:
+            if code_block_opened == False:
                 code_blocks.append([i])
-                code_block_start_end = True
+                code_block_opened = True
             else:
                 code_blocks[-1].append(i)
-                code_block_start_end = False
+                code_block_opened = False
 
         # Append the indexes of titles that also match the title_depth criterion
         if line.startswith("#") and line.split(" ")[0] in "#" * title_depth:
