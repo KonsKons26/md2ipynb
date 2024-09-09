@@ -19,8 +19,8 @@ def find_blocks(lines, title_depth=5):
     code block, then returns a list of lists where each inner list is a block
     that starts with a `#`. 
     """
-    block_starts = []
-    code_blocks = []
+    block_starts_idxs = []
+    code_blocks_idxs = []
     code_block_opened = False
     for i, line in enumerate(lines):
         # Check if a line starts with a backtick or quotation marks then creates a
@@ -28,40 +28,40 @@ def find_blocks(lines, title_depth=5):
         # start and end of each code block
         if line.startswith("`") or line.startswith("'") or line.startswith('"'):
             if code_block_opened == False:
-                code_blocks.append([i])
+                code_blocks_idxs.append([i])
                 code_block_opened = True
             else:
-                code_blocks[-1].append(i)
+                code_blocks_idxs[-1].append(i)
                 code_block_opened = False
 
         # Append the indexes of titles that also match the title_depth criterion
-        if line.startswith("#") and line.split(" ")[0] in "#" * title_depth:
-            block_starts.append(i)
+        if line.startswith("#") and line.split(" ")[0] in "#"*title_depth:
+            block_starts_idxs.append(i)
 
     # Remove the indexes of `#` that are inside code blocks
-    block_starts_remove = []
-    for begin, end in code_blocks:
-        for i in block_starts:
+    block_starts_idxs_remove = []
+    for begin, end in code_blocks_idxs:
+        for i in block_starts_idxs:
             if begin < i < end:
-                block_starts_remove.append(i)
-    block_starts = [start for start in block_starts if start not in block_starts_remove]
+                block_starts_idxs_remove.append(i)
+    block_starts_idxs = [start for start in block_starts_idxs if start not in block_starts_idxs_remove]
 
     # Place all the text before the first `#` in a block, if the MD file does not start
     # with a `#`
-    if block_starts[0] == 0:
+    if block_starts_idxs[0] == 0:
         blocks = []
     else:
-        blocks = [[lines[i] for i in range(0, block_starts[0])]]
+        blocks = [[lines[i] for i in range(0, block_starts_idxs[0])]]
     # Iterate over the block_starts indexes
-    for i in range(0, len(block_starts) - 1):
-        block = []
+    for i in range(0, len(block_starts_idxs) - 1):
         # Place the lines between the two block_starts indexes in the temporary list
         # and then in the final list with the rest of the blocks
-        for j in range(block_starts[i], block_starts[i + 1]):
+        block = []
+        for j in range(block_starts_idxs[i], block_starts_idxs[i + 1]):
             block.append(lines[j])
         blocks.append(block)
     # Place the final block in the list
-    blocks.append([lines[i] for i in range(block_starts[-1], len(lines))])
+    blocks.append([lines[i] for i in range(block_starts_idxs[-1], len(lines))])
 
     return blocks
 
@@ -78,7 +78,6 @@ def create_nb_json(blocks):
         }
         for block in blocks
     ]
-
     metadata_cell = {}
     nbformat = 4
     nbformat_minor = 2
@@ -87,7 +86,7 @@ def create_nb_json(blocks):
         "cells": md_cells,
         "metadata_cell": metadata_cell,
         "nbormat": nbformat,
-        nbformat_minor: nbformat_minor
+        "nbformat_minor": nbformat_minor
     }
 
 
